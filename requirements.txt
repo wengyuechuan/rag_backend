@@ -1,0 +1,45 @@
+# 核心依赖
+numpy>=1.24.0
+requests>=2.31.0
+
+# FAISS 向量存储
+faiss-cpu>=1.7.4  # CPU 版本
+# faiss-gpu>=1.7.4  # GPU 版本（需要 CUDA）
+
+# 知识图谱
+neo4j>=5.14.0
+
+# LangGraph 和 AI
+langgraph>=0.0.20
+langchain-core>=0.1.0
+openai>=1.10.0
+
+# FastAPI 和 Web 服务
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+
+# 数据库和 ORM
+sqlalchemy>=2.0.0
+
+# 数据验证
+pydantic>=2.0.0
+
+# HTTP 客户端 (用于测试和异步请求)
+httpx>=0.25.0
+
+# 环境变量管理
+python-dotenv>=1.0.0
+
+# 文件解析
+pdfplumber>=0.10.0  # PDF 解析（推荐）
+# PyPDF2>=3.0.0  # PDF 解析（备选）
+python-docx>=1.0.0  # Word 文档
+beautifulsoup4>=4.12.0  # HTML 解析
+lxml>=4.9.0  # HTML 解析加速
+
+# 可选：异步文件操作
+# aiofiles>=23.0.0
+
+# 可选：与 LangChain 完整集成
+# langchain>=0.1.0
