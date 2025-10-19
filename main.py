@@ -28,7 +28,7 @@ else:
     print("⚠️  未找到 .env 文件，使用默认配置")
 
 from database import init_db
-from api.routers import knowledge_base, document, search, chat
+from api.routers import knowledge_base, document, search, chat, coze
 
 # 创建 FastAPI 应用
 app = FastAPI(
@@ -97,6 +97,8 @@ async def startup_event():
         "NEO4J_USERNAME": os.getenv("NEO4J_USERNAME"),
         "NEO4J_PASSWORD": os.getenv("NEO4J_PASSWORD"),
         "OLLAMA_BASE_URL": os.getenv("OLLAMA_BASE_URL"),
+        "COZE_API_KEY": os.getenv("COZE_API_KEY"),
+        "COZE_WORKFLOW_ID": os.getenv("COZE_WORKFLOW_ID"),
     }
     
     for key, value in env_vars.items():
@@ -168,10 +170,17 @@ async def get_config_status():
             "base_url": os.getenv("OLLAMA_BASE_URL", "http://localhost:11434"),
             "embedding_model": os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text"),
         },
+        "coze": {
+            "api_key_configured": bool(os.getenv("COZE_API_KEY")),
+            "api_key": mask_value(os.getenv("COZE_API_KEY")),
+            "base_url": os.getenv("COZE_BASE_URL", "https://api.coze.cn"),
+            "workflow_id": os.getenv("COZE_WORKFLOW_ID", "<未配置>"),
+        },
         "features": {
             "vector_store": "可用",
             "ner": "可用" if os.getenv("OPENAI_API_KEY") else "需要配置 OPENAI_API_KEY",
             "knowledge_graph": "可用（需要启动 Neo4j）",
+            "coze_workflow": "可用" if os.getenv("COZE_API_KEY") else "需要配置 COZE_API_KEY",
         }
     }
     
@@ -186,6 +195,7 @@ app.include_router(knowledge_base.router, prefix="/api/v1")
 app.include_router(document.router, prefix="/api/v1")
 app.include_router(search.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
+app.include_router(coze.router, prefix="/api/v1")  # ⭐ NEW: Coze 工作流
 
 
 if __name__ == "__main__":

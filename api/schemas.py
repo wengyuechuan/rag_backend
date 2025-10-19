@@ -318,3 +318,47 @@ class ChatHistoryResponse(BaseModel):
     messages: List[ChatMessageResponse]
     total: int
 
+
+# ==================== Coze 工作流相关 ⭐ NEW ====================
+
+class CozeWorkflowRequest(BaseModel):
+    """Coze 工作流请求"""
+    workflow_id: str = Field(..., description="工作流 ID")
+    input_text: str = Field(..., min_length=1, description="输入文本")
+    parameters: Optional[Dict[str, Any]] = Field(None, description="额外参数（可选）")
+    bot_id: Optional[str] = Field(None, description="Bot ID（可选）")
+    stream: bool = Field(True, description="是否流式返回")
+
+
+class CozeNodeMessage(BaseModel):
+    """Coze 节点消息"""
+    node_execute_uuid: str
+    node_seq_id: str
+    node_title: str
+    node_type: str
+    node_id: str
+    content: str
+    content_type: str
+    node_is_finish: bool
+    usage: Optional[Dict[str, int]] = None
+    output: Optional[str] = Field(None, description="提取的输出内容")
+
+
+class CozeWorkflowResponse(BaseModel):
+    """Coze 工作流响应"""
+    workflow_id: str
+    input_text: str
+    output: Optional[str] = Field(None, description="最终输出")
+    messages: List[CozeNodeMessage] = Field(default_factory=list, description="所有节点消息")
+    total_tokens: int = Field(0, description="总 Token 数")
+    input_tokens: int = Field(0, description="输入 Token 数")
+    output_tokens: int = Field(0, description="输出 Token 数")
+    debug_url: Optional[str] = Field(None, description="调试链接")
+    processing_time: float = Field(0, description="处理时间（秒）")
+
+
+class CozeSimpleRequest(BaseModel):
+    """Coze 简化请求（使用默认工作流）"""
+    input_text: str = Field(..., min_length=1, description="输入文本")
+    stream: bool = Field(True, description="是否流式返回")
+

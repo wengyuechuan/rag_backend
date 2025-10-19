@@ -30,6 +30,12 @@
 - **图谱存储**：Neo4j 图数据库
 - **图谱推理**：路径查找、邻居发现、子图提取
 
+### 🤖 AI 工作流集成 ⭐ NEW
+- **Coze 集成**：调用 Coze AI 工作流
+- **流式输出**：实时返回处理结果
+- **灵活配置**：支持自定义参数和工作流
+- **无缝集成**：与 RAG 系统完美结合
+
 ### 🔄 异步处理
 - **后台任务**：文档处理不阻塞 API 响应
 - **状态跟踪**：实时查询处理进度
@@ -109,6 +115,10 @@ OLLAMA_EMBEDDING_MODEL=nomic-embed-text
 NEO4J_URI=bolt://localhost:7687
 NEO4J_USERNAME=neo4j
 NEO4J_PASSWORD=your_password
+
+# Coze 配置（AI 工作流，可选）⭐ NEW
+COZE_API_KEY=pat_xxxxxxxxxxxxx
+COZE_WORKFLOW_ID=7562785533798547507
 ```
 
 ### 3. 启动服务
@@ -242,7 +252,30 @@ status = requests.get(f"{BASE_URL}/documents/{doc['id']}/status")
 print(status.json())
 ```
 
-### 3. 智能对话
+### 3. Coze 工作流调用 ⭐ NEW
+
+```python
+# 调用 Coze 工作流
+response = requests.post(
+    f"{BASE_URL}/coze/workflow/run",
+    json={
+        "workflow_id": "7562785533798547507",
+        "input_text": "北京今天应该穿什么衣服"
+    }
+)
+result = response.json()
+print(f"输出: {result['output']}")
+print(f"Token: {result['total_tokens']}")
+
+# 或使用简化接口（使用默认工作流）
+response = requests.post(
+    f"{BASE_URL}/coze/simple",
+    json={"input_text": "上海今天天气怎么样"}
+)
+print(response.json()['output'])
+```
+
+### 4. 智能对话
 
 ```python
 # 创建会话
@@ -277,7 +310,7 @@ for line in response.iter_lines():
 print()
 ```
 
-### 4. 混合搜索
+### 5. 混合搜索
 
 ```python
 # 向量搜索 + 图谱搜索
@@ -322,9 +355,9 @@ if result['graph_results']:
                          ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                      FastAPI REST API                        │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │知识库管理 │  │ 文档管理  │  │  搜索   │  │  对话   │   │
-│  └──────────┘  └──────────┘  └──────────┘  └──────────┘   │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ⭐NEW│
+│  │知识库管理│ │ 文档管理 │ │  搜索  │ │  对话  │ │Coze│ │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └────┘│
 └────────────────────────┬────────────────────────────────────┘
                          │
          ┌───────────────┼───────────────┐
@@ -610,6 +643,8 @@ RAG_backend/
   - [对话 API 指南](docs/CHAT_API_GUIDE.md) ⭐ NEW
   - [对话快速开始](docs/CHAT_QUICKSTART.md) ⭐ NEW
 - **功能指南**
+  - [Coze 工作流集成](docs/COZE_GUIDE.md) ⭐ NEW
+  - [Coze API 接口文档](docs/COZE_API_GUIDE.md) ⭐ NEW
   - [FAISS 持久化说明](docs/FAISS_PERSISTENCE.md) ⭐ NEW
   - [图谱搜索指南](docs/GRAPH_SEARCH_GUIDE.md)
   - [实体关系模型](docs/ENTITY_RELATION_MODEL.md)
@@ -640,6 +675,20 @@ RAG_backend/
 - 产品手册库
 - 客服知识库
 - 法律法规库
+
+### 5. AI 工作流增强 ⭐ NEW
+```python
+from utils.coze import run_coze_workflow
+
+# 调用 Coze 工作流
+result = run_coze_workflow(
+    workflow_id="7562785533798547507",
+    input_text="北京今天应该穿什么衣服"
+)
+print(result)
+# 输出: 今天北京天气晴朗，但气温较低且有风，
+#       建议穿着厚外套、毛衣、保暖裤...
+```
 
 ## ⚡ 性能优化
 

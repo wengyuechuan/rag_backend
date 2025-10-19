@@ -6,6 +6,7 @@
 from .chunk import TextChunker
 from .faiss import FaissVectorStore, OllamaEmbedding, DocumentMetadata
 from .file_parser import FileParser
+from .coze import CozeClient, CozeMessage, CozeResponse, run_coze_workflow
 
 __all__ = [
     "TextChunker",
@@ -13,6 +14,10 @@ __all__ = [
     "OllamaEmbedding",
     "DocumentMetadata",
     "FileParser",
+    "CozeClient",
+    "CozeMessage",
+    "CozeResponse",
+    "run_coze_workflow",
 ]
 
 # 可选导入（需要额外依赖）
