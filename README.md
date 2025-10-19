@@ -22,6 +22,7 @@
 - **图谱搜索**：基于实体关系的知识推理
 - **混合搜索**：结合向量和图谱的优势
 - **高性能**：FAISS 加速，支持大规模数据
+- **自动持久化**：FAISS 索引自动保存，重启不丢失 ⭐ NEW
 
 ### 🧠 知识图谱
 - **实体识别**：自动提取人物、组织、地点等实体
@@ -609,6 +610,7 @@ RAG_backend/
   - [对话 API 指南](docs/CHAT_API_GUIDE.md) ⭐ NEW
   - [对话快速开始](docs/CHAT_QUICKSTART.md) ⭐ NEW
 - **功能指南**
+  - [FAISS 持久化说明](docs/FAISS_PERSISTENCE.md) ⭐ NEW
   - [图谱搜索指南](docs/GRAPH_SEARCH_GUIDE.md)
   - [实体关系模型](docs/ENTITY_RELATION_MODEL.md)
   - [异步处理说明](docs/ASYNC_PROCESSING.md)

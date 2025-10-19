@@ -7,6 +7,7 @@ import time
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
+from pathlib import Path
 from sqlalchemy.orm import Session
 from typing import List, Optional, Tuple, Dict, Any
 import numpy as np
@@ -65,21 +66,45 @@ class DocumentProcessingService:
     
     # ==================== 资源获取 ====================
     
+    def _get_vector_store_path(self, kb_id: int) -> str:
+        """获取向量存储的保存路径"""
+        index_dir = Path("data/indexes")
+        index_dir.mkdir(parents=True, exist_ok=True)
+        return str(index_dir / f"kb_{kb_id}")
+    
     def get_vector_store(self, kb: KnowledgeBase) -> Optional[FaissVectorStore]:
-        """获取或创建向量存储实例"""
+        """获取或创建向量存储实例（支持持久化）"""
         if not kb.enable_vector_store:
             return None
         
         if kb.id not in self.vector_stores:
             try:
-                self.vector_stores[kb.id] = FaissVectorStore(
-                    embedding_model=kb.embedding_model,
-                    index_type="Flat",
-                    metric="Cosine"
-                )
-                print(f"✅ 为知识库 {kb.id} 创建向量存储")
+                store_path = self._get_vector_store_path(kb.id)
+                
+                # 尝试从磁盘加载已存在的索引
+                if Path(store_path).exists() and Path(f"{store_path}/index.faiss").exists():
+                    try:
+                        print(f"📂 正在加载知识库 {kb.id} 的向量索引...")
+                        self.vector_stores[kb.id] = FaissVectorStore.load(store_path)
+                        print(f"✅ 成功加载向量索引，文档数: {self.vector_stores[kb.id].get_stats()['total_documents']}")
+                    except Exception as e:
+                        print(f"⚠️  加载索引失败: {e}，将创建新索引")
+                        self.vector_stores[kb.id] = FaissVectorStore(
+                            embedding_model=kb.embedding_model,
+                            index_type="Flat",
+                            metric="Cosine"
+                        )
+                else:
+                    # 创建新的向量存储
+                    self.vector_stores[kb.id] = FaissVectorStore(
+                        embedding_model=kb.embedding_model,
+                        index_type="Flat",
+                        metric="Cosine"
+                    )
+                    print(f"✅ 为知识库 {kb.id} 创建新的向量存储")
+                    
             except Exception as e:
-                print(f"❌ 创建向量存储失败: {e}")
+                print(f"❌ 创建/加载向量存储失败: {e}")
                 return None
         
         return self.vector_stores[kb.id]
@@ -349,7 +374,7 @@ class DocumentProcessingService:
         chunks: List[DocumentChunk],
         kb: KnowledgeBase
     ):
-        """向量化分块步骤"""
+        """向量化分块步骤（自动持久化）"""
         vector_store = self.get_vector_store(kb)
         if not vector_store:
             return
@@ -376,6 +401,14 @@ class DocumentProcessingService:
                 chunk.embedding_model = vector_store.embedding.model
             
             db.commit()
+            
+            # 自动保存向量索引到磁盘
+            try:
+                store_path = self._get_vector_store_path(kb.id)
+                vector_store.save(store_path)
+                print(f"💾 向量索引已保存到: {store_path}")
+            except Exception as e:
+                print(f"⚠️  保存向量索引失败: {e}")
             
         except Exception as e:
             print(f"⚠️  向量化失败: {e}")
